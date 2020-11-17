@@ -1,0 +1,45 @@
+version: "3.7"
+
+services:
+
+  spark-master:
+    image: jarzamendia/spark-master:v3
+    restart: always
+    ports:
+      - "8080:8080"
+      - "7077:7077"
+    environment:
+      - INIT_DAEMON_STEP=setup_spark
+      - SPARK_PUBLIC_DNS=spark.local
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_DAEMON_JAVA_OPTS=-Dspark.metrics.conf=/opt/spark/conf/metrics.properties
+    volumes:
+      - C:\Users\Lurdinha\Downloads\202001_BolsaFamilia_Pagamentos:/tmp/bolsa
+     
+  spark-worker:
+    restart: always
+    image: jarzamendia/spark-worker:v3
+    ports:
+      - "8081:8081"
+    environment:
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=1
+      - SPARK_WORKER_MEMORY=1G
+      - SPARK_DRIVER_MEMORY=128m
+      - SPARK_EXECUTOR_MEMORY=256m
+      - SPARK_PUBLIC_DNS=worker.spark.local
+      - SPARK_DAEMON_JAVA_OPTS=-Dspark.metrics.conf=/opt/spark/conf/metrics.properties
+    volumes:
+      - C:\Users\Lurdinha\Downloads\202001_BolsaFamilia_Pagamentos:/tmp/bolsa
+      
+  spark-jupyter:
+    restart: always
+    image: all
+    ports:
+      - "8888:8888"
+    environment: 
+      - JUPYTER_ENABLE_LAB=y
+      - SPARK_MASTER_HOST=spark://spark-master:7077
+      - SPARK_MASTER=spark://spark-master:7077
+    volumes:
+      - C:\Users\Lurdinha\Downloads\202001_BolsaFamilia_Pagamentos:/tmp/bolsa
